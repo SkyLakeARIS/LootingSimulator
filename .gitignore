@@ -1,0 +1,18 @@
+# Visual Studio / Rider / IDE 로컬 설정 파일들
+.vs/
+.idea/
+*.sln
+*.suo
+*.xcodeproj
+*.xcworkspace
+
+# 언리얼 엔진 빌드 및 임시 생성 파일들 (용량 폭탄의 주범)
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# OS 자동 생성 파일들
+.DS_Store
+Thumbs.db
