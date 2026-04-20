@@ -12,13 +12,13 @@ struct FItemData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	int16 ID;
+	int16 ID = 0;
 	UPROPERTY(EditAnywhere)
-	int8 WidthInInventory;
+	int8 WidthInInventory = 0;
 	UPROPERTY(EditAnywhere)
-	int8 HeightInInventory;
+	int8 HeightInInventory = 0;
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMesh> Mesh;
+	TObjectPtr<UStaticMesh> Mesh = nullptr;
 };
 
 USTRUCT()
@@ -36,13 +36,13 @@ struct FSpawnAreaBounds
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	double MinX;
+	double MinX = TNumericLimits<double>::Max();
 	UPROPERTY(EditAnywhere)
-	double MaxX;
+	double MaxX = TNumericLimits<double>::Lowest();
 	UPROPERTY(EditAnywhere)
-	double MinY;
+	double MinY = TNumericLimits<double>::Max();
 	UPROPERTY(EditAnywhere)
-	double MaxY;
+	double MaxY = TNumericLimits<double>::Lowest();
 };
 
 UCLASS()
