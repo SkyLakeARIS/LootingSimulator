@@ -20,7 +20,7 @@ void AItemManager::OnConstruction(const FTransform& Transform)
 void AItemManager::BeginPlay()
 {
 	Super::BeginPlay();
-	for (FItemData& Item : ItemList)
+	for (FItemTypeData& Item : ItemList)
 	{
 		if (!Item.Mesh)
 		{
