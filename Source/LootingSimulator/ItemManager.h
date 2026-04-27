@@ -12,8 +12,7 @@ struct FItemTypeData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	int16 ID = 0;
-	UPROPERTY(EditAnywhere)
+	int16 Id = 0;
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "Item Name. Max Text Length is 64"))
 	FText Name;
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "Total Items To Spawn In World"))
@@ -31,8 +30,8 @@ struct FItemObjectStorage
 {
 	GENERATED_BODY()
 
-	TSparseArray<int16> IDs;
 	TSparseArray<FVector3f> Positions;
+	TSparseArray<int16> Ids;
 };
 
 USTRUCT()
