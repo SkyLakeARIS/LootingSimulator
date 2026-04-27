@@ -30,8 +30,8 @@ struct FItemObjectStorage
 {
 	GENERATED_BODY()
 
-	TSparseArray<FVector3f> Positions;
 	TSparseArray<int16> Ids;
+	TSparseArray<FTransform> Positions;
 };
 
 USTRUCT()
@@ -70,7 +70,6 @@ public:
 
 public:
 
-	UPROPERTY(EditAnywhere, Category = "Item|Spawn")
 	FSpawnAreaBounds SpawnArea;
 
 	UPROPERTY(EditAnywhere, Category = "Item|Info")

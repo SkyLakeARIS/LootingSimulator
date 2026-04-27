@@ -2,6 +2,7 @@
 
 
 #include "ItemManager.h"
+#include "ItemChunkManager.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Math/RandomStream.h"
 // Sets default values
@@ -20,6 +21,17 @@ void AItemManager::OnConstruction(const FTransform& Transform)
 void AItemManager::BeginPlay()
 {
 	Super::BeginPlay();
+	UWorld* const World = GetWorld();
+	AItemChunkManager* ChunkManager = nullptr;
+	if(World)
+	{
+		for (AItemChunkManager* Manager : TActorRange<AItemChunkManager>(World))
+		{
+			SpawnArea = Manager->FloorExtent;
+			ChunkManager= Manager;
+		}
+	}
+
 	for (FItemTypeData& Item : ItemList)
 	{
 		if (!Item.Mesh)
@@ -49,7 +61,14 @@ void AItemManager::BeginPlay()
 		{
 			const double PosX = RandomStream.FRandRange(SpawnArea.MinX, SpawnArea.MaxX);
 			const double PosY = RandomStream.FRandRange(SpawnArea.MinY, SpawnArea.MaxY);
-			ItemIsmcMap[Mesh]->AddInstance(FTransform(FVector(PosX, PosY, 0.0)));
+			const FTransform Transform = FTransform(FVector(PosX, PosY, 0.0));
+			ItemIsmcMap[Mesh]->AddInstance(Transform);
+
+			// configuring Item Storage
+			ItemStorage.Ids.Add(CurrentItemId);
+			ItemStorage.Positions.Add(Transform);
+			const int32 IndexInStorage = ItemStorage.Ids.Num() - 1;
+			ChunkManager->AddItem(IndexInStorage, Transform);
 		}
 	}
 	UE_LOG(LogTemp, Display, TEXT("Item ISMC was set."));
