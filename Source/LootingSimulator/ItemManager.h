@@ -7,7 +7,7 @@
 #include "ItemManager.generated.h"
 
 USTRUCT(Category="Item|Info")
-struct FItemTypeData
+struct FItemDefinition
 {
 	GENERATED_BODY()
 
@@ -26,7 +26,7 @@ struct FItemTypeData
 };
 
 USTRUCT()
-struct FItemObjectStorage
+struct FItemStorage
 {
 	GENERATED_BODY()
 
@@ -76,10 +76,10 @@ public:
 	FSpawnAreaBounds SpawnArea;
 
 	UPROPERTY(EditAnywhere, Category = "Item|Info")
-	TArray<FItemTypeData> ItemList;
+	TArray<FItemDefinition> ItemDefinitions;
 
 	UPROPERTY()
 	TMap<int16, UInstancedStaticMeshComponent*> ItemIsmcMap;
 
-	FItemObjectStorage ItemStorage;
+	FItemStorage ItemStorage;
 };

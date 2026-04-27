@@ -26,14 +26,14 @@ void AItemManager::OnConstruction(const FTransform& Transform)
 EDataValidationResult AItemManager::IsDataValid(FDataValidationContext& Context) const
 {
 	EDataValidationResult Result = Super::IsDataValid(Context);
-	const int32 ItemCount = ItemList.Num();
+	const int32 ItemCount = ItemDefinitions.Num();
 	// check if the item id is unique.
 	TSet<int16> SeenIds;
 	SeenIds.Reserve(ItemCount);
 	bool bSuccess = true;
 	for (int32 Item = 0; Item < ItemCount; ++Item)
 	{
-		const int16 CurId = ItemList[Item].Id;
+		const int16 CurId = ItemDefinitions[Item].Id;
 		if(SeenIds.Find(CurId))
 		{
 			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_DuplicateId", "중복 사용된 ID가 있습니다. 각 ID는 고유해야 합니다. Actor Name: {0}, ID: {1}, Index: {2}"), FText::FromString(GetName()), FText::AsNumber(CurId), FText::AsNumber(Item)));
@@ -50,31 +50,31 @@ EDataValidationResult AItemManager::IsDataValid(FDataValidationContext& Context)
 			bSuccess = false;
 		}
 
-		if (ItemList[Item].Name.IsEmptyOrWhitespace())
+		if (ItemDefinitions[Item].Name.IsEmptyOrWhitespace())
 		{
 			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_EmptyName", "이름이 공백이거나 올바르지 않습니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
 			bSuccess = false;
 		}
 
-		if (ItemList[Item].SpawnCount <= 0)
+		if (ItemDefinitions[Item].SpawnCount <= 0)
 		{
 			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroSpawnCount", "SpawnCount는 1보다 커야 합니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
 			bSuccess = false;
 		}
 
-		if (ItemList[Item].WidthInInventory <= 0)
+		if (ItemDefinitions[Item].WidthInInventory <= 0)
 		{
 			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroWidth", "WidthInInventory는 1보다 커야 합니다.(1~127) Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
 			bSuccess = false;
 		}
 
-		if (ItemList[Item].HeightInInventory <= 0)
+		if (ItemDefinitions[Item].HeightInInventory <= 0)
 		{
 			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroHeight", "HeightInInventory는 1보다 커야 합니다.(1~127) Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
 			bSuccess = false;
 		}
 
-		if(!ItemList[Item].Mesh)
+		if(!ItemDefinitions[Item].Mesh)
 		{
 			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NoMesh", "Mesh가 설정되지 않은 아이템이 존재합니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
 			bSuccess = false;
@@ -114,7 +114,7 @@ void AItemManager::BeginPlay()
 		}
 	}
 
-	for (FItemTypeData& Item : ItemList)
+	for (FItemDefinition& Item : ItemDefinitions)
 	{
 		if (!Item.Mesh)
 		{
@@ -122,29 +122,29 @@ void AItemManager::BeginPlay()
 		}
 	}
 
-	int32 MeshCount = ItemList.Num();
-	for (int32_t IsmcIndex = 0; IsmcIndex < MeshCount; ++IsmcIndex)
+	int32 ItemCount = ItemDefinitions.Num();
+	for (int32_t IsmcIndex = 0; IsmcIndex < ItemCount; ++IsmcIndex)
 	{
 		ItemIsmcMap.Add(IsmcIndex, NewObject<UInstancedStaticMeshComponent>(this));
 		ItemIsmcMap[IsmcIndex]->RegisterComponent();
 		ItemIsmcMap[IsmcIndex]->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 		ItemIsmcMap[IsmcIndex]->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
-		ItemIsmcMap[IsmcIndex]->SetStaticMesh(ItemList[IsmcIndex].Mesh);
+		ItemIsmcMap[IsmcIndex]->SetStaticMesh(ItemDefinitions[IsmcIndex].Mesh);
 	}
 
 	constexpr int32_t FixedSeed = 123456;
 	FRandomStream RandomStream(FixedSeed);
 
-	for (int32_t Mesh = 0; Mesh < MeshCount; ++Mesh)
+	for (int32_t ItemType = 0; ItemType < ItemCount; ++ItemType)
 	{
-		const int32 SpawnCount = ItemList[Mesh].SpawnCount;
-		const int32 CurrentItemId = ItemList[Mesh].Id;
+		const int32 SpawnCount = ItemDefinitions[ItemType].SpawnCount;
+		const int32 CurrentItemId = ItemDefinitions[ItemType].Id;
 		for (int Item = 0; Item < SpawnCount; ++Item)
 		{
 			const double PosX = RandomStream.FRandRange(SpawnArea.MinX, SpawnArea.MaxX);
 			const double PosY = RandomStream.FRandRange(SpawnArea.MinY, SpawnArea.MaxY);
 			const FTransform Transform = FTransform(FVector(PosX, PosY, 0.0));
-			ItemIsmcMap[Mesh]->AddInstance(Transform);
+			ItemIsmcMap[ItemType]->AddInstance(Transform);
 
 			// configuring Item Storage
 			ItemStorage.Ids.Add(CurrentItemId);
