@@ -41,12 +41,11 @@ void AItemManager::BeginPlay()
 	constexpr int32_t FixedSeed = 123456;
 	FRandomStream RandomStream(FixedSeed);
 
-	constexpr int16_t TestIsmcIndex = 2;
-	constexpr int16_t TestItemCount = 10;
-
-	for (int32_t Mesh = 0; Mesh < TestIsmcIndex; ++Mesh)
+	for (int32_t Mesh = 0; Mesh < MeshCount; ++Mesh)
 	{
-		for (int Item = 0; Item < TestItemCount; ++Item)
+		const int32 SpawnCount = ItemList[Mesh].SpawnCount;
+		const int32 CurrentItemId = ItemList[Mesh].Id;
+		for (int Item = 0; Item < SpawnCount; ++Item)
 		{
 			const double PosX = RandomStream.FRandRange(SpawnArea.MinX, SpawnArea.MaxX);
 			const double PosY = RandomStream.FRandRange(SpawnArea.MinY, SpawnArea.MaxY);

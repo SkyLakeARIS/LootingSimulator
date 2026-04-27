@@ -14,10 +14,15 @@ struct FItemTypeData
 	UPROPERTY(EditAnywhere)
 	int16 ID = 0;
 	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Item Name. Max Text Length is 64"))
+	FText Name;
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Total Items To Spawn In World"))
+	int32 SpawnCount = 0;
+	UPROPERTY(EditAnywhere, Category = "Inventory")
 	int8 WidthInInventory = 0;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Inventory")
 	int8 HeightInInventory = 0;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Rendering")
 	TObjectPtr<UStaticMesh> Mesh = nullptr;
 };
 
