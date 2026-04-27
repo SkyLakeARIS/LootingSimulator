@@ -122,7 +122,7 @@ void AItemManager::BeginPlay()
 		}
 	}
 
-	int32 ItemCount = ItemDefinitions.Num();
+	const int32 ItemCount = ItemDefinitions.Num();
 	for (int32_t IsmcIndex = 0; IsmcIndex < ItemCount; ++IsmcIndex)
 	{
 		ItemIsmcMap.Add(IsmcIndex, NewObject<UInstancedStaticMeshComponent>(this));
