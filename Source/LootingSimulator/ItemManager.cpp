@@ -139,7 +139,7 @@ void AItemManager::BeginPlay()
 	{
 		const int32 SpawnCount = ItemDefinitions[ItemType].SpawnCount;
 		const int32 CurrentItemId = ItemDefinitions[ItemType].Id;
-		for (int Item = 0; Item < SpawnCount; ++Item)
+		for (int32 Item = 0; Item < SpawnCount; ++Item)
 		{
 			const double PosX = RandomStream.FRandRange(SpawnArea.MinX, SpawnArea.MaxX);
 			const double PosY = RandomStream.FRandRange(SpawnArea.MinY, SpawnArea.MaxY);
