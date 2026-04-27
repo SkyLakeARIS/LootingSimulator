@@ -5,6 +5,11 @@
 #include "ItemChunkManager.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Math/RandomStream.h"
+#include "EngineUtils.h"
+#include "Framework/Notifications/NotificationManager.h"
+#include "Misc/DataValidation.h"
+#include "Widgets/Notifications/SNotificationList.h"
+
 // Sets default values
 AItemManager::AItemManager()
 {
@@ -16,6 +21,83 @@ void AItemManager::OnConstruction(const FTransform& Transform)
 {
 
 }
+
+#if WITH_EDITOR
+EDataValidationResult AItemManager::IsDataValid(FDataValidationContext& Context) const
+{
+	EDataValidationResult Result = Super::IsDataValid(Context);
+	const int32 ItemCount = ItemList.Num();
+	// check if the item id is unique.
+	TSet<int16> SeenIds;
+	SeenIds.Reserve(ItemCount);
+	bool bSuccess = true;
+	for (int32 Item = 0; Item < ItemCount; ++Item)
+	{
+		const int16 CurId = ItemList[Item].Id;
+		if(SeenIds.Find(CurId))
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_DuplicateId", "중복 사용된 ID가 있습니다. 각 ID는 고유해야 합니다. Actor Name: {0}, ID: {1}, Index: {2}"), FText::FromString(GetName()), FText::AsNumber(CurId), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+		else
+		{
+			SeenIds.Add(CurId);
+		}
+
+		if(CurId <= 0)
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroId", "ID는 1보다 커야 합니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+
+		if (ItemList[Item].Name.IsEmptyOrWhitespace())
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_EmptyName", "이름이 공백이거나 올바르지 않습니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+
+		if (ItemList[Item].SpawnCount <= 0)
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroSpawnCount", "SpawnCount는 1보다 커야 합니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+
+		if (ItemList[Item].WidthInInventory <= 0)
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroWidth", "WidthInInventory는 1보다 커야 합니다.(1~127) Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+
+		if (ItemList[Item].HeightInInventory <= 0)
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NegativeOrZeroHeight", "HeightInInventory는 1보다 커야 합니다.(1~127) Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+
+		if(!ItemList[Item].Mesh)
+		{
+			Context.AddError(FText::Format(NSLOCTEXT("Editor.Validator.Item", "Invalid_Reason_NoMesh", "Mesh가 설정되지 않은 아이템이 존재합니다. Actor Name: {0}, Index: {1}"), FText::FromString(GetName()), FText::AsNumber(Item)));
+			bSuccess = false;
+		}
+	}
+
+	if (!bSuccess)
+	{
+		Result = EDataValidationResult::Invalid;
+
+		FNotificationInfo NotificationInfo(NSLOCTEXT("Editor.Validator.Item", "Validator_Fail_InvalidDataFound", "ItemManager에 비정상 데이터 발견"));
+		NotificationInfo.ExpireDuration = 10.0f;
+		NotificationInfo.bFireAndForget = true;
+		NotificationInfo.Image = FAppStyle::GetBrush("Icons.Error");
+		NotificationInfo.SubText = NSLOCTEXT("Editor.Validator.Item", "Validator_Message_Guide", "에디터 내 Output Log 메세지를 확인하여 발견된 문제들을 수정하세요.");
+		TSharedPtr<SNotificationItem> Notification = FSlateNotificationManager::Get().AddNotification(NotificationInfo);
+
+		GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"));
+	}
+
+	return Result;
+}
+#endif
 
 // Called when the game starts or when spawned
 void AItemManager::BeginPlay()

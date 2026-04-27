@@ -58,7 +58,10 @@ public:
 	// Sets default values for this actor's properties
 	AItemManager();
 	virtual void OnConstruction(const FTransform& Transform) override;
-
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
+	
+#endif
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
